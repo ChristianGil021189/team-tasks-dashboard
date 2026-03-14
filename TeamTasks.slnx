@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/TeamTasks.Api/TeamTasks.Api.csproj" />
+    <Project Path="src/backend/TeamTasks.Application/TeamTasks.Application.csproj" />
+    <Project Path="src/backend/TeamTasks.Domain/TeamTasks.Domain.csproj" />
+    <Project Path="src/backend/TeamTasks.Infrastructure/TeamTasks.Infrastructure.csproj" />
+    <Project Path="src/backend/TeamTasks.Tests/TeamTasks.Tests.csproj" />
+  </Folder>
+</Solution>
