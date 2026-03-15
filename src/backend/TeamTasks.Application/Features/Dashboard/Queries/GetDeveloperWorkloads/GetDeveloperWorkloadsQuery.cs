@@ -1,0 +1,3 @@
+﻿namespace TeamTasks.Application.Features.Dashboard.Queries.GetDeveloperWorkloads;
+
+public sealed record GetDeveloperWorkloadsQuery;

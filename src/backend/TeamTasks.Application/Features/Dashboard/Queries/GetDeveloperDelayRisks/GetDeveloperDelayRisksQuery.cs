@@ -1,0 +1,3 @@
+﻿namespace TeamTasks.Application.Features.Dashboard.Queries.GetDeveloperDelayRisks;
+
+public sealed record GetDeveloperDelayRisksQuery;
