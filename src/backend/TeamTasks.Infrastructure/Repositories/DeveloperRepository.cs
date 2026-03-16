@@ -33,10 +33,8 @@ public sealed class DeveloperRepository : IDeveloperRepository
     }
 
     public async Task<IReadOnlyCollection<DeveloperWorkloadDto>> GetDeveloperWorkloadsAsync(
-        CancellationToken cancellationToken = default)
+    CancellationToken cancellationToken = default)
     {
-        var today = DateTime.UtcNow.Date;
-
         return await _context.Developers
             .AsNoTracking()
             .Where(developer => developer.IsActive)
@@ -44,71 +42,59 @@ public sealed class DeveloperRepository : IDeveloperRepository
             .ThenBy(developer => developer.LastName)
             .Select(developer => new DeveloperWorkloadDto
             {
-                DeveloperId = developer.DeveloperId,
-                FullName = developer.FirstName + " " + developer.LastName,
-                Email = developer.Email,
-                TotalAssignedTasks = developer.AssignedTasks.Count(),
-                ToDoTasks = developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.ToDo),
-                InProgressTasks = developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.InProgress),
-                BlockedTasks = developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.Blocked),
-                CompletedTasks = developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.Completed),
-                OverdueTasks = developer.AssignedTasks.Count(task =>
-                    task.Status != TaskItemStatus.Completed &&
-                    task.DueDate < today),
-                TotalComplexity = developer.AssignedTasks.Sum(task => (int?)task.EstimatedComplexity) ?? 0
+                DeveloperName = developer.FirstName + " " + developer.LastName,
+                OpenTasksCount = developer.AssignedTasks.Count(task => task.Status != TaskItemStatus.Completed),
+                AverageEstimatedComplexity =
+                    developer.AssignedTasks
+                        .Where(task => task.Status != TaskItemStatus.Completed)
+                        .Average(task => (decimal?)task.EstimatedComplexity) ?? 0
             })
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyCollection<DeveloperDelayRiskDto>> GetDeveloperDelayRisksAsync(
-        CancellationToken cancellationToken = default)
+    CancellationToken cancellationToken = default)
     {
         var today = DateTime.UtcNow.Date;
-        var dueSoonDate = today.AddDays(3);
 
-        return await _context.Developers
+        var data = await _context.Developers
             .AsNoTracking()
             .Where(developer => developer.IsActive)
-            .OrderByDescending(developer => developer.AssignedTasks.Count(task =>
-                task.Status != TaskItemStatus.Completed &&
-                task.DueDate < today))
-            .ThenByDescending(developer => developer.AssignedTasks.Count(task =>
-                task.Status != TaskItemStatus.Completed &&
-                task.DueDate >= today &&
-                task.DueDate <= dueSoonDate))
-            .ThenBy(developer => developer.FirstName)
-            .ThenBy(developer => developer.LastName)
-            .Select(developer => new DeveloperDelayRiskDto
+            .Select(developer => new
             {
-                DeveloperId = developer.DeveloperId,
-                FullName = developer.FirstName + " " + developer.LastName,
-                Email = developer.Email,
-                TotalAssignedTasks = developer.AssignedTasks.Count(),
-                OverdueTasks = developer.AssignedTasks.Count(task =>
-                    task.Status != TaskItemStatus.Completed &&
-                    task.DueDate < today),
-                DueSoonTasks = developer.AssignedTasks.Count(task =>
-                    task.Status != TaskItemStatus.Completed &&
-                    task.DueDate >= today &&
-                    task.DueDate <= dueSoonDate),
-                BlockedTasks = developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.Blocked),
-                TotalComplexity = developer.AssignedTasks.Sum(task => (int?)task.EstimatedComplexity) ?? 0,
-                DelayRiskPercentage = developer.AssignedTasks.Count() == 0
-                    ? 0
-                    : (
-                        (
-                            developer.AssignedTasks.Count(task =>
-                                task.Status != TaskItemStatus.Completed &&
-                                task.DueDate < today) +
-                            developer.AssignedTasks.Count(task =>
-                                task.Status != TaskItemStatus.Completed &&
-                                task.DueDate >= today &&
-                                task.DueDate <= dueSoonDate) +
-                            developer.AssignedTasks.Count(task => task.Status == TaskItemStatus.Blocked)
-                        ) * 100.0m
-                    ) / developer.AssignedTasks.Count()
+                DeveloperName = developer.FirstName + " " + developer.LastName,
+                OpenTasksCount = developer.AssignedTasks.Count(task => task.Status != TaskItemStatus.Completed),
+                AvgDelayDays = developer.AssignedTasks
+                    .Where(task =>
+                        task.Status != TaskItemStatus.Completed &&
+                        task.DueDate < today)
+                    .Average(task => (double?)EF.Functions.DateDiffDay(task.DueDate, today)) ?? 0,
+                NearestDueDate = developer.AssignedTasks
+                    .Where(task => task.Status != TaskItemStatus.Completed)
+                    .Min(task => (DateTime?)task.DueDate),
+                LatestDueDate = developer.AssignedTasks
+                    .Where(task => task.Status != TaskItemStatus.Completed)
+                    .Max(task => (DateTime?)task.DueDate)
             })
+            .OrderByDescending(item => item.AvgDelayDays)
+            .ThenByDescending(item => item.OpenTasksCount)
+            .ThenBy(item => item.DeveloperName)
             .ToListAsync(cancellationToken);
+
+        return data
+            .Select(item => new DeveloperDelayRiskDto
+            {
+                DeveloperName = item.DeveloperName,
+                OpenTasksCount = item.OpenTasksCount,
+                AvgDelayDays = Convert.ToDecimal(Math.Round(item.AvgDelayDays, 2)),
+                NearestDueDate = item.NearestDueDate,
+                LatestDueDate = item.LatestDueDate,
+                PredictedCompletionDate = item.LatestDueDate?.AddDays((int)Math.Ceiling(item.AvgDelayDays)),
+                HighRiskFlag = item.OpenTasksCount > 0 &&
+                               (item.AvgDelayDays >= 3 ||
+                                (item.NearestDueDate.HasValue && item.NearestDueDate.Value < today))
+            })
+            .ToList();
     }
 
     public async Task<bool> ExistsAsync(

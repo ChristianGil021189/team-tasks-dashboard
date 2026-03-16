@@ -25,6 +25,8 @@ namespace TeamTasks.Application.DTOs
 
         public int EstimatedComplexity { get; init; }
 
+        public DateTime CreatedAt { get; init; }
+
         public DateTime DueDate { get; init; }
 
         public DateTime? CompletionDate { get; init; }

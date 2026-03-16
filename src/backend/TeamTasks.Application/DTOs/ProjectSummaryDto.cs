@@ -18,6 +18,8 @@ namespace TeamTasks.Application.DTOs
 
         public int TotalTasks { get; init; }
 
+        public int OpenTasks { get; init; }
+
         public int CompletedTasks { get; init; }
     }
 }

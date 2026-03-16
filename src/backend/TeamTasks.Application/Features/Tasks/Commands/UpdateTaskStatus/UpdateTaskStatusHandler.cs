@@ -38,6 +38,11 @@ public sealed class UpdateTaskStatusHandler
             return;
         }
 
+        if (!Enum.IsDefined(typeof(TaskItemStatus), command.Request.Status))
+        {
+            throw new ArgumentOutOfRangeException(nameof(command.Request.Status), "Status is invalid.");
+        }
+
         taskItem.Status = newStatus;
         taskItem.CompletionDate = newStatus == TaskItemStatus.Completed
             ? DateTime.UtcNow

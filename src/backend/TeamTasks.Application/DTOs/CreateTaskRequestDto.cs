@@ -15,6 +15,8 @@ namespace TeamTasks.Application.DTOs
 
         public int AssigneeId { get; set; }
 
+        public TaskItemStatus Status { get; set; }
+
         public TaskPriority Priority { get; set; }
 
         public int EstimatedComplexity { get; set; }

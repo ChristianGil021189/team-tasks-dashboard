@@ -16,7 +16,7 @@ public sealed class DashboardRepository : IDashboardRepository
     }
 
     public async Task<IReadOnlyCollection<ProjectHealthDto>> GetProjectHealthAsync(
-        CancellationToken cancellationToken = default)
+    CancellationToken cancellationToken = default)
     {
         var today = DateTime.UtcNow.Date;
 
@@ -27,7 +27,9 @@ public sealed class DashboardRepository : IDashboardRepository
             {
                 ProjectId = project.ProjectId,
                 ProjectName = project.Name,
+                ClientName = project.ClientName,
                 TotalTasks = project.Tasks.Count(),
+                OpenTasks = project.Tasks.Count(task => task.Status != TaskItemStatus.Completed),
                 CompletedTasks = project.Tasks.Count(task => task.Status == TaskItemStatus.Completed),
                 InProgressTasks = project.Tasks.Count(task => task.Status == TaskItemStatus.InProgress),
                 BlockedTasks = project.Tasks.Count(task => task.Status == TaskItemStatus.Blocked),

@@ -1,0 +1,157 @@
+<section class="task-create-page">
+  <header class="page-header">
+    <div>
+      <p class="page-kicker">Tasks</p>
+      <h1 class="page-title">New Task</h1>
+      <p class="page-subtitle">
+        Create a new task and assign it to a developer.
+      </p>
+    </div>
+
+    <div class="page-actions">
+      <a routerLink="/dashboard" class="secondary-action">Back to Dashboard</a>
+    </div>
+  </header>
+
+  @if (loadError) {
+    <div class="feedback-message error">
+      {{ loadError }}
+    </div>
+  }
+
+  @if (submitSuccess) {
+    <div class="feedback-message success">
+      {{ submitSuccess }}
+    </div>
+  }
+
+  @if (submitError) {
+    <div class="feedback-message error">
+      {{ submitError }}
+    </div>
+  }
+
+  <section class="form-card" aria-label="New task form">
+    @if (isLoadingData) {
+      <p class="form-state">Loading projects and developers...</p>
+    } @else {
+      <form [formGroup]="taskForm" (ngSubmit)="submit()" class="task-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="projectId">Project</label>
+            <select id="projectId" formControlName="projectId">
+              <option [ngValue]="null">Select a project</option>
+              @for (project of projects; track project.projectId) {
+                <option [ngValue]="project.projectId">
+                  {{ project.name }} - {{ project.clientName }}
+                </option>
+              }
+            </select>
+            @if (hasError('projectId', 'required') || hasError('projectId', 'min')) {
+              <small class="field-error">Project is required.</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="assigneeId">Assignee</label>
+            <select id="assigneeId" formControlName="assigneeId">
+              <option [ngValue]="null">Select a developer</option>
+              @for (developer of developers; track developer.developerId) {
+                <option [ngValue]="developer.developerId">
+                  {{ developer.fullName }}
+                </option>
+              }
+            </select>
+            @if (hasError('assigneeId', 'required') || hasError('assigneeId', 'min')) {
+              <small class="field-error">Assignee is required.</small>
+            }
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="title">Title</label>
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              maxlength="150"
+              placeholder="Enter task title" />
+            @if (hasError('title', 'required')) {
+              <small class="field-error">Title is required.</small>
+            }
+            @if (hasError('title', 'maxlength')) {
+              <small class="field-error">Title cannot exceed 150 characters.</small>
+            }
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="4"
+              placeholder="Add an optional description"></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="status">Status</label>
+            <select id="status" formControlName="status">
+              @for (status of statusOptions; track status.value) {
+                <option [ngValue]="status.value">{{ status.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="priority">Priority</label>
+            <select id="priority" formControlName="priority">
+              @for (priority of priorityOptions; track priority.value) {
+                <option [ngValue]="priority.value">{{ priority.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="estimatedComplexity">Estimated Complexity</label>
+            <input
+              id="estimatedComplexity"
+              type="number"
+              formControlName="estimatedComplexity"
+              min="1"
+              max="5" />
+            @if (hasError('estimatedComplexity', 'required')) {
+              <small class="field-error">Estimated complexity is required.</small>
+            }
+            @if (hasError('estimatedComplexity', 'min')) {
+              <small class="field-error">Estimated complexity must be at least 1.</small>
+            }
+            @if (hasError('estimatedComplexity', 'max')) {
+                <small class="field-error">Estimated complexity must be between 1 and 5.</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="dueDate">Due Date</label>
+            <input
+              id="dueDate"
+              type="date"
+              formControlName="dueDate" />
+            @if (hasError('dueDate', 'required')) {
+              <small class="field-error">Due date is required.</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="primary-action"
+            [disabled]="isSubmitting || isLoadingData">
+            {{ isSubmitting ? 'Creating...' : 'Create Task' }}
+          </button>
+
+          <a routerLink="/dashboard" class="secondary-action">Cancel</a>
+        </div>
+      </form>
+    }
+  </section>
+</section>

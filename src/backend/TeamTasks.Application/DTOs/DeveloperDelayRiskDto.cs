@@ -1,27 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TeamTasks.Application.DTOs
+﻿namespace TeamTasks.Application.DTOs
 {
     public sealed class DeveloperDelayRiskDto
     {
-        public int DeveloperId { get; init; }
+        public string DeveloperName { get; init; } = string.Empty;
 
-        public string FullName { get; init; } = string.Empty;
+        public int OpenTasksCount { get; init; }
 
-        public string Email { get; init; } = string.Empty;
+        public decimal AvgDelayDays { get; init; }
 
-        public int TotalAssignedTasks { get; init; }
+        public DateTime? NearestDueDate { get; init; }
 
-        public int OverdueTasks { get; init; }
+        public DateTime? LatestDueDate { get; init; }
 
-        public int DueSoonTasks { get; init; }
+        public DateTime? PredictedCompletionDate { get; init; }
 
-        public int BlockedTasks { get; init; }
-
-        public int TotalComplexity { get; init; }
-
-        public decimal DelayRiskPercentage { get; init; }
+        public bool HighRiskFlag { get; init; }
     }
 }

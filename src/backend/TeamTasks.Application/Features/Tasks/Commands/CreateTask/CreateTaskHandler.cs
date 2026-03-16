@@ -54,6 +54,11 @@ public sealed class CreateTaskHandler
             throw new ArgumentException("DueDate is required.", nameof(request.DueDate));
         }
 
+        if (!Enum.IsDefined(typeof(TaskItemStatus), request.Status))
+        {
+            throw new ArgumentOutOfRangeException(nameof(request.Status), "Status is invalid.");
+        }
+
         var projectExists = await _projectRepository.ExistsAsync(request.ProjectId, cancellationToken);
 
         if (!projectExists)
@@ -83,11 +88,11 @@ public sealed class CreateTaskHandler
                 ? null
                 : request.Description.Trim(),
             AssigneeId = request.AssigneeId,
-            Status = TaskItemStatus.ToDo,
+            Status = request.Status,
+            CompletionDate = request.Status == TaskItemStatus.Completed? DateTime.UtcNow: null,
             Priority = request.Priority,
             EstimatedComplexity = request.EstimatedComplexity,
             DueDate = request.DueDate,
-            CompletionDate = null,
             CreatedAt = DateTime.UtcNow
         };
 

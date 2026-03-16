@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TeamTasks.Domain.Enums
+﻿namespace TeamTasks.Domain.Enums
 {
     public enum TaskItemStatus
     {

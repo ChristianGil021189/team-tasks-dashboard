@@ -1,0 +1,177 @@
+<section class="dashboard-page">
+  <header class="page-header">
+    <div>
+      <h1>Team Tasks Dashboard</h1>
+      <p>Overview of project health, developer workload and delivery risk.</p>
+    </div>
+
+    <a class="primary-action" routerLink="/tasks/new">
+      New Task
+    </a>
+  </header>
+
+  <section class="summary-grid">
+    <article class="summary-card">
+      <h2>Developer Workload</h2>
+      <p class="card-description">
+        Open tasks and average complexity by developer.
+      </p>
+
+      @if (developerWorkload$ | async; as developerWorkload) {
+        @if (developerWorkload.length > 0) {
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>
+                    <button
+                      type="button"
+                      class="sort-button"
+                      (click)="setDeveloperWorkloadSort('developerName')">
+                      Developer
+                      <span class="sort-indicator">
+                        @if (isDeveloperWorkloadSort('developerName', 'asc')) {
+                          ↑
+                        } @else if (isDeveloperWorkloadSort('developerName', 'desc')) {
+                          ↓
+                        } @else {
+                          ↕
+                        }
+                      </span>
+                    </button>
+                  </th>
+
+                  <th>
+                    <button
+                      type="button"
+                      class="sort-button"
+                      (click)="setDeveloperWorkloadSort('openTasksCount')">
+                      Open Tasks
+                      <span class="sort-indicator">
+                        @if (isDeveloperWorkloadSort('openTasksCount', 'asc')) {
+                          ↑
+                        } @else if (isDeveloperWorkloadSort('openTasksCount', 'desc')) {
+                          ↓
+                        } @else {
+                          ↕
+                        }
+                      </span>
+                    </button>
+                  </th>
+
+                  <th>Avg. Complexity</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of developerWorkload; track item.developerName) {
+                  <tr>
+                    <td>{{ item.developerName }}</td>
+                    <td>{{ item.openTasksCount }}</td>
+                    <td>{{ item.averageEstimatedComplexity | number:'1.0-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="card-placeholder">No data available.</div>
+        }
+      }
+    </article>
+
+    <article class="summary-card">
+      <h2>Project Health</h2>
+      <p class="card-description">
+        Task progress, overdue items and overall project risk.
+      </p>
+
+      @if (projectHealth$ | async; as projectHealth) {
+        @if (projectHealth.length > 0) {
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Client</th>
+                  <th>Total</th>
+                  <th>Open</th>
+                  <th>Completed</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+                <tbody>
+                @for (item of projectHealth; track item.projectId) {
+                    <tr [class.table-row--warning]="item.openTasks > item.completedTasks">
+                    <td>{{ item.projectName }}</td>
+                    <td>{{ item.clientName }}</td>
+                    <td>{{ item.totalTasks }}</td>
+                    <td>{{ item.openTasks }}</td>
+                    <td>{{ item.completedTasks }}</td>
+                    <td>
+                        <button
+                        type="button"
+                        class="table-action-button"
+                        (click)="goToProjectTasks(item.projectId)">
+                        View Tasks
+                        </button>
+                    </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="card-placeholder">No data available.</div>
+        }
+      }
+    </article>
+
+    <article class="summary-card">
+      <h2>Delay Risk</h2>
+      <p class="card-description">
+        Developers with potential delivery delays.
+      </p>
+
+      @if (developerDelayRisk$ | async; as developerDelayRisk) {
+        @if (developerDelayRisk.length > 0) {
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Developer</th>
+                  <th>Open Tasks</th>
+                  <th>Avg. Delay</th>
+                  <th>Nearest Due</th>
+                  <th>Latest Due</th>
+                  <th>Predicted Completion</th>
+                  <th>Risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of developerDelayRisk; track item.developerName) {
+                  <tr [class.table-row--danger]="item.highRiskFlag">
+                    <td>{{ item.developerName }}</td>
+                    <td>{{ item.openTasksCount }}</td>
+                    <td>{{ item.avgDelayDays | number:'1.0-2' }}</td>
+                    <td>{{ item.nearestDueDate ? (item.nearestDueDate | date:'yyyy-MM-dd') : '-' }}</td>
+                    <td>{{ item.latestDueDate ? (item.latestDueDate | date:'yyyy-MM-dd') : '-' }}</td>
+                    <td>{{ item.predictedCompletionDate ? (item.predictedCompletionDate | date:'yyyy-MM-dd') : '-' }}</td>
+                    <td>
+                      <span
+                        class="risk-badge"
+                        [class.risk-badge--high]="item.highRiskFlag">
+                        {{ item.highRiskFlag ? 'High' : 'Normal' }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="card-placeholder">No data available.</div>
+        }
+      }
+    </article>
+  </section>
+</section>

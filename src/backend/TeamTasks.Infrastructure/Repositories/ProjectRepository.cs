@@ -31,6 +31,7 @@ public sealed class ProjectRepository : IProjectRepository
                 StartDate = project.StartDate,
                 EndDate = project.EndDate,
                 TotalTasks = project.Tasks.Count(),
+                OpenTasks = project.Tasks.Count(task => task.Status != TaskItemStatus.Completed),
                 CompletedTasks = project.Tasks.Count(task => task.Status == TaskItemStatus.Completed)
             })
             .ToListAsync(cancellationToken);
@@ -73,6 +74,7 @@ public sealed class ProjectRepository : IProjectRepository
                 Status = task.Status,
                 Priority = task.Priority,
                 EstimatedComplexity = task.EstimatedComplexity,
+                CreatedAt = task.CreatedAt,
                 DueDate = task.DueDate,
                 CompletionDate = task.CompletionDate
             })

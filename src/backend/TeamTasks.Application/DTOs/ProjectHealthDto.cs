@@ -10,7 +10,11 @@ namespace TeamTasks.Application.DTOs
 
         public string ProjectName { get; init; } = string.Empty;
 
+        public string ClientName { get; init; } = string.Empty;
+
         public int TotalTasks { get; init; }
+
+        public int OpenTasks { get; init; }
 
         public int CompletedTasks { get; init; }
 
