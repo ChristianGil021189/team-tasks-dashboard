@@ -1,0 +1,51 @@
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        @for (column of columns(); track trackByColumn($index, column)) {
+          <th
+            [class]="column.headerClass ?? ''"
+            [class.align-center]="column.align === 'center'"
+            [class.align-right]="column.align === 'right'">
+            @if (column.headerTemplate) {
+              <ng-container
+                [ngTemplateOutlet]="column.headerTemplate"
+                [ngTemplateOutletContext]="getHeaderContext(column)" />
+            } @else {
+              {{ column.header }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (rows().length === 0) {
+        <tr>
+          <td class="empty-state" [attr.colspan]="columns().length">
+            {{ emptyMessage() }}
+          </td>
+        </tr>
+      } @else {
+        @for (row of rows(); track trackByRow($index)) {
+          <tr [class]="getRowClass(row)">
+            @for (column of columns(); track trackByColumn($index, column)) {
+              <td
+                [class]="getCellClass(row, column)"
+                [class.align-center]="column.align === 'center'"
+                [class.align-right]="column.align === 'right'">
+                @if (column.cellTemplate) {
+                  <ng-container
+                    [ngTemplateOutlet]="column.cellTemplate"
+                    [ngTemplateOutletContext]="getCellContext(row, column)" />
+                } @else {
+                  {{ getCellText(row, column) }}
+                }
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

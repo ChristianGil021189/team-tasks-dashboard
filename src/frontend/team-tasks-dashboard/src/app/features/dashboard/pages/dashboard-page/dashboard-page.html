@@ -17,62 +17,48 @@
         Open tasks and average complexity by developer.
       </p>
 
+      <ng-template #developerNameHeaderTemplate>
+        <button
+          type="button"
+          class="sort-button"
+          (click)="setDeveloperWorkloadSort('developerName')">
+          Developer
+          <span class="sort-indicator">
+            @if (isDeveloperWorkloadSort('developerName', 'asc')) {
+              ↑
+            } @else if (isDeveloperWorkloadSort('developerName', 'desc')) {
+              ↓
+            } @else {
+              ↕
+            }
+          </span>
+        </button>
+      </ng-template>
+
+      <ng-template #openTasksHeaderTemplate>
+        <button
+          type="button"
+          class="sort-button"
+          (click)="setDeveloperWorkloadSort('openTasksCount')">
+          Open Tasks
+          <span class="sort-indicator">
+            @if (isDeveloperWorkloadSort('openTasksCount', 'asc')) {
+              ↑
+            } @else if (isDeveloperWorkloadSort('openTasksCount', 'desc')) {
+              ↓
+            } @else {
+              ↕
+            }
+          </span>
+        </button>
+      </ng-template>
+
       @if (developerWorkload$ | async; as developerWorkload) {
         @if (developerWorkload.length > 0) {
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>
-                    <button
-                      type="button"
-                      class="sort-button"
-                      (click)="setDeveloperWorkloadSort('developerName')">
-                      Developer
-                      <span class="sort-indicator">
-                        @if (isDeveloperWorkloadSort('developerName', 'asc')) {
-                          ↑
-                        } @else if (isDeveloperWorkloadSort('developerName', 'desc')) {
-                          ↓
-                        } @else {
-                          ↕
-                        }
-                      </span>
-                    </button>
-                  </th>
-
-                  <th>
-                    <button
-                      type="button"
-                      class="sort-button"
-                      (click)="setDeveloperWorkloadSort('openTasksCount')">
-                      Open Tasks
-                      <span class="sort-indicator">
-                        @if (isDeveloperWorkloadSort('openTasksCount', 'asc')) {
-                          ↑
-                        } @else if (isDeveloperWorkloadSort('openTasksCount', 'desc')) {
-                          ↓
-                        } @else {
-                          ↕
-                        }
-                      </span>
-                    </button>
-                  </th>
-
-                  <th>Avg. Complexity</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of developerWorkload; track item.developerName) {
-                  <tr>
-                    <td>{{ item.developerName }}</td>
-                    <td>{{ item.openTasksCount }}</td>
-                    <td>{{ item.averageEstimatedComplexity | number:'1.0-2' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          <app-data-table
+            [columns]="developerWorkloadColumns()"
+            [rows]="developerWorkload">
+          </app-data-table>
         } @else {
           <div class="card-placeholder">No data available.</div>
         }
@@ -99,25 +85,25 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-                <tbody>
+              <tbody>
                 @for (item of projectHealth; track item.projectId) {
-                    <tr [class.table-row--warning]="item.openTasks > item.completedTasks">
+                  <tr [class.table-row--warning]="item.openTasks > item.completedTasks">
                     <td>{{ item.projectName }}</td>
                     <td>{{ item.clientName }}</td>
                     <td>{{ item.totalTasks }}</td>
                     <td>{{ item.openTasks }}</td>
                     <td>{{ item.completedTasks }}</td>
                     <td>
-                        <button
+                      <button
                         type="button"
                         class="table-action-button"
                         (click)="goToProjectTasks(item.projectId)">
                         View Tasks
-                        </button>
+                      </button>
                     </td>
-                    </tr>
+                  </tr>
                 }
-                </tbody>
+              </tbody>
             </table>
           </div>
         } @else {
